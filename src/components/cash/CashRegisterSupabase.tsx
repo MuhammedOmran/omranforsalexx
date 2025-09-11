@@ -543,30 +543,28 @@ export default function CashRegisterSupabase() {
               <BarChart3 className="h-4 w-4 ml-2" />
               {showCharts ? 'إخفاء التحليلات' : 'عرض التحليلات'}
             </Button>
-            <Select value={dateFilter} onValueChange={setDateFilter}>
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7days" className="font-tajawal">آخر 7 أيام</SelectItem>
-                <SelectItem value="30days" className="font-tajawal">آخر 30 يوم</SelectItem>
-                <SelectItem value="3months" className="font-tajawal">آخر 3 أشهر</SelectItem>
-                <SelectItem value="6months" className="font-tajawal">آخر 6 أشهر</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Select value={dateFilter} onValueChange={setDateFilter}>
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="z-50 bg-background border border-border shadow-md">
+                  <SelectItem value="7days" className="font-tajawal">آخر 7 أيام</SelectItem>
+                  <SelectItem value="30days" className="font-tajawal">آخر 30 يوم</SelectItem>
+                  <SelectItem value="3months" className="font-tajawal">آخر 3 أشهر</SelectItem>
+                  <SelectItem value="6months" className="font-tajawal">آخر 6 أشهر</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button 
+                onClick={handleOpenRestoreDialog} 
+                variant="destructive" 
+                className="font-tajawal whitespace-nowrap"
+              >
+                <FileText className="h-4 w-4 ml-2" />
+                استعادة المحذوفة
+              </Button>
+            </div>
           </div>
-        </div>
-
-        {/* شريط الأدوات */}
-        <div className="flex flex-wrap gap-2">
-          <Button 
-            onClick={handleOpenRestoreDialog} 
-            variant="destructive" 
-            className="font-tajawal"
-          >
-            <FileText className="h-4 w-4 ml-2" />
-            استعادة المعاملات المحذوفة
-          </Button>
         </div>
       </div>
 

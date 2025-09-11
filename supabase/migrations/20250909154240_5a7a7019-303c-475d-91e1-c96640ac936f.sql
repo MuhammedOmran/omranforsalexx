@@ -1,0 +1,12 @@
+-- حذف المنتجات المكررة والاحتفاظ بالأول فقط (PRD001)
+-- حذف المنتجات المكررة للمستخدم الحالي
+DELETE FROM products 
+WHERE user_id = '07045e5c-0528-4561-9c0b-dbc47313a19b' 
+AND name = 'تيشرت' 
+AND code IN ('PRD002', 'PRD003', 'PRD004', 'PRD005');
+
+-- إضافة قيد لمنع إنشاء منتجات بأسماء مكررة للمستخدم الواحد
+ALTER TABLE products 
+ADD CONSTRAINT unique_product_name_per_user 
+UNIQUE (user_id, name, is_active) 
+DEFERRABLE INITIALLY DEFERRED;

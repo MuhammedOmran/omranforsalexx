@@ -3024,6 +3024,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      permanently_delete_all_invoices: {
+        Args: { p_days_back?: number; p_user_id: string }
+        Returns: {
+          deleted_count: number
+          message: string
+        }[]
+      }
       permanently_delete_customer: {
         Args: { p_customer_id: string; p_user_id: string }
         Returns: {

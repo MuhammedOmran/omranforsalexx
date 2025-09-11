@@ -222,6 +222,48 @@ export default function RestoreInvoices() {
     }
   };
 
+  // حذف جميع الفواتير المحذوفة نهائياً
+  const deleteAllInvoicesPermanently = async () => {
+    if (!user) return;
+    
+    if (!confirm("هل أنت متأكد من الحذف النهائي لجميع الفواتير؟ لا يمكن التراجع عن هذا الإجراء.")) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.rpc('permanently_delete_all_invoices', {
+        p_user_id: user.id,
+        p_days_back: 30
+      });
+
+      if (error) throw error;
+
+      const result = data?.[0];
+      if (result?.deleted_count > 0) {
+        toast({
+          title: "تم الحذف نهائياً",
+          description: result.message,
+        });
+        setDeletedInvoices([]);
+      } else {
+        toast({
+          title: "لا يوجد فواتير للحذف",
+          description: result?.message || "لا يوجد فواتير محذوفة للحذف النهائي",
+        });
+      }
+    } catch (error) {
+      console.error('Error permanently deleting all invoices:', error);
+      toast({
+        title: "خطأ في الحذف",
+        description: "حدث خطأ أثناء حذف الفواتير نهائياً",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -249,14 +291,25 @@ export default function RestoreInvoices() {
             تحديث
           </Button>
           {deletedInvoices.length > 0 && (
-            <Button
-              onClick={restoreAllInvoices}
-              disabled={loading}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              <Undo2 className="h-4 w-4 ml-2" />
-              استعادة الكل
-            </Button>
+            <>
+              <Button
+                onClick={restoreAllInvoices}
+                disabled={loading}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Undo2 className="h-4 w-4 ml-2" />
+                استعادة الكل
+              </Button>
+              <Button
+                onClick={deleteAllInvoicesPermanently}
+                disabled={loading}
+                variant="destructive"
+                className="bg-red-600 hover:bg-red-700"
+              >
+                <Trash2 className="h-4 w-4 ml-2" />
+                حذف الكل
+              </Button>
+            </>
           )}
         </div>
       </div>

@@ -18,18 +18,15 @@ import {
   TrendingDown,
   History,
   Wallet,
-  RefreshCw,
   Download,
   AlertTriangle,
   Edit2,
   Trash2,
-  RotateCcw,
   FileText,
   BarChart3,
   PieChart,
   Calendar,
-  Filter,
-  Zap
+  Filter
 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useCashRegister } from '@/hooks/useCashRegister';
@@ -62,8 +59,6 @@ export default function CashRegisterSupabase() {
     permanentDeleteTransaction,
     permanentDeleteAllTransactions,
     getCashStatistics,
-    cleanupOrphanedInvoiceTransactions,
-    syncExistingInventoryWithCash,
     refreshData
   } = useCashRegister();
 
@@ -564,28 +559,6 @@ export default function CashRegisterSupabase() {
 
         {/* شريط الأدوات */}
         <div className="flex flex-wrap gap-2">
-          <Button onClick={refreshData} variant="outline" disabled={isLoading} className="font-tajawal">
-            <RefreshCw className={`h-4 w-4 ml-2 ${isLoading ? 'animate-spin' : ''}`} />
-            تحديث
-          </Button>
-          <Button 
-            onClick={cleanupOrphanedInvoiceTransactions} 
-            variant="secondary" 
-            disabled={isLoading}
-            className="font-tajawal"
-          >
-            <RotateCcw className="h-4 w-4 ml-2" />
-            تنظيف البيانات
-          </Button>
-          <Button 
-            onClick={() => syncExistingInventoryWithCash()} 
-            variant="outline" 
-            disabled={isLoading}
-            className="font-tajawal"
-          >
-            <Zap className="h-4 w-4 ml-2" />
-            مزامنة المخزون
-          </Button>
           <Button 
             onClick={handleOpenRestoreDialog} 
             variant="destructive" 
@@ -1096,7 +1069,7 @@ export default function CashRegisterSupabase() {
         <CardContent>
           {isLoading ? (
             <div className="text-center py-8">
-              <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2" />
+              <Download className="h-8 w-8 animate-spin mx-auto mb-2" />
               <p className="font-tajawal">جاري التحميل...</p>
             </div>
           ) : transactions.length === 0 ? (

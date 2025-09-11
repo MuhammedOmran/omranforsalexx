@@ -337,42 +337,6 @@ export function useCashRegister() {
     }
   };
 
-  // مزامنة المخزون الموجود مع الصندوق
-  const syncExistingInventoryWithCash = async () => {
-    try {
-      setIsLoading(true);
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('المستخدم غير مسجل دخول');
-
-      const { data, error } = await supabase.rpc('sync_existing_inventory_with_cash', {
-        p_user_id: user.user.id
-      });
-
-      if (error) throw error;
-
-      // تحديث البيانات
-      await fetchTransactions();
-      await fetchCurrentBalance();
-
-      toast({
-        title: "تم بنجاح",
-        description: `تم مزامنة ${data || 0} منتج مع الصندوق`
-      });
-
-      return data || 0;
-    } catch (err: any) {
-      setError(err.message);
-      toast({
-        title: "خطأ في المزامنة",
-        description: err.message,
-        variant: "destructive"
-      });
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // إحصائيات الصندوق
   const getCashStatistics = async () => {
     try {
@@ -606,49 +570,6 @@ export function useCashRegister() {
     }
   };
 
-  // تنظيف المعاملات المالية للفواتير المحذوفة
-  const cleanupOrphanedInvoiceTransactions = async () => {
-    try {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('المستخدم غير مسجل دخول');
-
-      const { data, error } = await supabase.rpc('cleanup_orphaned_invoice_transactions', {
-        p_user_id: user.user.id
-      });
-
-      if (error) throw error;
-
-      const result = data?.[0];
-      if (result) {
-        // تحديث البيانات بعد التنظيف
-        await fetchTransactions();
-        await fetchCurrentBalance();
-
-        toast({
-          title: "تم تنظيف البيانات",
-          description: result.message,
-        });
-      }
-    } catch (err: any) {
-      toast({
-        title: "خطأ في تنظيف البيانات",
-        description: err.message,
-        variant: "destructive"
-      });
-    }
-  };
-
-  // مزامنة البيانات من الأنظمة الأخرى
-  const syncFromOtherSystems = async () => {
-    // تنظيف المعاملات المالية للفواتير المحذوفة أولاً
-    await cleanupOrphanedInvoiceTransactions();
-    
-    toast({
-      title: "مزامنة البيانات",
-      description: "تم بدء عملية المزامنة مع الأنظمة الأخرى"
-    });
-  };
-
   // تهيئة البيانات عند تحميل الصفحة
   useEffect(() => {
     const initializeCashRegister = async () => {
@@ -692,11 +613,8 @@ export function useCashRegister() {
     permanentDeleteAllTransactions,
     getTransactionsByDateRange,
     getCashStatistics,
-    syncFromOtherSystems,
-    cleanupOrphanedInvoiceTransactions,
     addInventoryValueTransaction,
     getTotalInventoryValue,
-    syncExistingInventoryWithCash,
     refreshData: () => {
       fetchTransactions();
       fetchCurrentBalance();

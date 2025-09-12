@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Settings, Save, RotateCcw } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAppSettings } from "@/hooks/useAppSettings";
+import { useAutoBackupSettings } from "@/hooks/useAutoBackupSettings";
 
 interface GeneralSettingsData {
   autoSave: boolean;
@@ -36,6 +37,11 @@ const defaultSettings: GeneralSettingsData = {
 export function GeneralSettings() {
   const [settings, setSettings] = useState<GeneralSettingsData>(defaultSettings);
   const { loading, getCategorySettings, setCategorySettings } = useAppSettings();
+  const { 
+    settings: autoBackupSettings, 
+    loading: autoBackupLoading, 
+    saveSettings: saveAutoBackupSettings 
+  } = useAutoBackupSettings();
 
   useEffect(() => {
     loadSettings();
@@ -119,12 +125,22 @@ export function GeneralSettings() {
               <div className="space-y-0.5">
                 <Label>النسخ الاحتياطي التلقائي</Label>
                 <p className="text-sm text-muted-foreground">
-                  إنشاء نسخة احتياطية يومياً
+                  إنشاء نسخة احتياطية يومياً في الساعة {autoBackupSettings.backup_time?.slice(0, 5) || '02:00'}
+                  {autoBackupSettings.enabled && autoBackupSettings.next_backup_date && (
+                    <span className="block text-xs text-green-600 mt-1">
+                      النسخة التالية: {new Date(autoBackupSettings.next_backup_date).toLocaleString('ar-SA')}
+                    </span>
+                  )}
                 </p>
               </div>
               <Switch
-                checked={settings.autoBackup}
-                onCheckedChange={(checked) => updateSetting('autoBackup', checked)}
+                checked={autoBackupSettings.enabled}
+                onCheckedChange={async (checked) => {
+                  await saveAutoBackupSettings({ enabled: checked });
+                  // تحديث الإعداد المحلي أيضاً للتوافق مع النظام القديم
+                  updateSetting('autoBackup', checked);
+                }}
+                disabled={autoBackupLoading}
               />
             </div>
 

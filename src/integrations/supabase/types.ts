@@ -113,6 +113,99 @@ export type Database = {
           },
         ]
       }
+      auto_backup_logs: {
+        Row: {
+          backup_duration: unknown | null
+          backup_type: string
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          file_path: string | null
+          file_size: number | null
+          id: string
+          started_at: string
+          status: string
+          tables_included: string[] | null
+          total_records: number | null
+          user_id: string
+        }
+        Insert: {
+          backup_duration?: unknown | null
+          backup_type?: string
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          started_at?: string
+          status?: string
+          tables_included?: string[] | null
+          total_records?: number | null
+          user_id: string
+        }
+        Update: {
+          backup_duration?: unknown | null
+          backup_type?: string
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          started_at?: string
+          status?: string
+          tables_included?: string[] | null
+          total_records?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      auto_backup_settings: {
+        Row: {
+          backup_interval: string
+          backup_location: string | null
+          backup_time: string
+          created_at: string
+          enabled: boolean
+          id: string
+          include_tables: string[] | null
+          last_backup_date: string | null
+          next_backup_date: string | null
+          retention_days: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          backup_interval?: string
+          backup_location?: string | null
+          backup_time?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          include_tables?: string[] | null
+          last_backup_date?: string | null
+          next_backup_date?: string | null
+          retention_days?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          backup_interval?: string
+          backup_location?: string | null
+          backup_time?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          include_tables?: string[] | null
+          last_backup_date?: string | null
+          next_backup_date?: string | null
+          retention_days?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       barcode_settings: {
         Row: {
           auto_generate: boolean
@@ -2637,6 +2730,14 @@ export type Database = {
         Args: { p_profit_percentage: number; p_unit_cost: number }
         Returns: number
       }
+      calculate_next_backup_time: {
+        Args: {
+          backup_interval: string
+          backup_time: string
+          last_backup?: string
+        }
+        Returns: string
+      }
       calculate_next_notification_time: {
         Args: { input_time: string; pattern: string }
         Returns: string
@@ -3072,6 +3173,10 @@ export type Database = {
           message: string
           success: boolean
         }[]
+      }
+      process_auto_backups: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
       process_scheduled_notifications: {
         Args: Record<PropertyKey, never>

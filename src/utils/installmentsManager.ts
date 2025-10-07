@@ -110,12 +110,26 @@ class InstallmentsManager {
 
   async updateInstallment(id: string, installmentData: Partial<InstallmentData>): Promise<boolean> {
     try {
+      // جلب القسط الحالي للحصول على المبلغ المدفوع
+      const { data: currentInstallment, error: getError } = await supabase
+        .from('installments')
+        .select('paid_amount')
+        .eq('id', id)
+        .single();
+
+      if (getError) throw getError;
+
+      // حساب المبلغ المتبقي الجديد
+      const newTotalAmount = installmentData.totalAmount ?? currentInstallment.paid_amount;
+      const newRemainingAmount = newTotalAmount - currentInstallment.paid_amount;
+
       const { error } = await supabase
         .from('installments')
         .update({
           customer_name: installmentData.customerName,
           customer_phone: installmentData.customerPhone,
           total_amount: installmentData.totalAmount,
+          remaining_amount: newRemainingAmount,
           installment_amount: installmentData.installmentAmount,
           start_date: installmentData.startDate,
           due_date: installmentData.dueDate,

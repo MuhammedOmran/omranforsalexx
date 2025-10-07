@@ -80,29 +80,54 @@ export function useAutoBackupSettings() {
     try {
       const updatedSettings = { ...settings, ...newSettings };
       
-      const { data, error } = await supabase
+      // التحقق من وجود إعدادات سابقة
+      const { data: existingData } = await supabase
         .from('auto_backup_settings')
-        .upsert({
-          user_id: user?.id,
-          enabled: updatedSettings.enabled,
-          backup_interval: updatedSettings.backup_interval,
-          backup_time: updatedSettings.backup_time,
-          retention_days: updatedSettings.retention_days,
-          include_tables: updatedSettings.include_tables,
-          backup_location: updatedSettings.backup_location
-        }, {
-          onConflict: 'user_id'
-        })
-        .select()
-        .single();
+        .select('id')
+        .eq('user_id', user?.id)
+        .maybeSingle();
 
-      if (error) throw error;
+      let result;
+      
+      if (existingData) {
+        // تحديث الإعدادات الموجودة
+        result = await supabase
+          .from('auto_backup_settings')
+          .update({
+            enabled: updatedSettings.enabled,
+            backup_interval: updatedSettings.backup_interval,
+            backup_time: updatedSettings.backup_time,
+            retention_days: updatedSettings.retention_days,
+            include_tables: updatedSettings.include_tables,
+            backup_location: updatedSettings.backup_location
+          })
+          .eq('id', existingData.id)
+          .select()
+          .single();
+      } else {
+        // إنشاء إعدادات جديدة
+        result = await supabase
+          .from('auto_backup_settings')
+          .insert({
+            user_id: user?.id,
+            enabled: updatedSettings.enabled,
+            backup_interval: updatedSettings.backup_interval,
+            backup_time: updatedSettings.backup_time,
+            retention_days: updatedSettings.retention_days,
+            include_tables: updatedSettings.include_tables,
+            backup_location: updatedSettings.backup_location
+          })
+          .select()
+          .single();
+      }
+
+      if (result.error) throw result.error;
 
       setSettings({
         ...updatedSettings,
-        id: data.id,
-        next_backup_date: data.next_backup_date,
-        last_backup_date: data.last_backup_date
+        id: result.data.id,
+        next_backup_date: result.data.next_backup_date,
+        last_backup_date: result.data.last_backup_date
       });
 
       toast({

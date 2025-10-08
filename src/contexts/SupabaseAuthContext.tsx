@@ -50,11 +50,7 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         if (session?.user) {
           // جلب بيانات البروفايل وإنشاء الجلسة بشكل غير متزامن
           setTimeout(async () => {
-            try {
-              await fetchUserProfile(session.user.id);
-            } catch (error) {
-              logger.error('Failed to fetch profile, will continue anyway', error, 'Auth');
-            }
+            await fetchUserProfile(session.user.id);
             
             // إنشاء جلسة تتبع للمستخدم عند تسجيل الدخول
             if (event === 'SIGNED_IN') {
@@ -82,11 +78,7 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        try {
-          await fetchUserProfile(session.user.id);
-        } catch (error) {
-          logger.error('Failed to fetch profile on init, will continue anyway', error, 'Auth');
-        }
+        await fetchUserProfile(session.user.id);
         
         // إنشاء جلسة تتبع للمستخدم إذا لم تكن موجودة
         try {
@@ -112,18 +104,41 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
       if (error) {
         logger.error('Error fetching user profile', error, 'Auth');
-        throw error;
+        // Don't throw, just continue without profile
+        return;
       }
 
       if (data) {
         setProfile(data as UserProfile);
         logger.info('User profile fetched successfully', { userId: data.id }, 'Auth');
       } else {
-        logger.warn('No profile found for user, will be created automatically', { userId }, 'Auth');
+        // Create profile if it doesn't exist
+        logger.warn('No profile found, creating one...', { userId }, 'Auth');
+        try {
+          const { data: userData } = await supabase.auth.getUser();
+          const { data: newProfile, error: insertError } = await supabase
+            .from('profiles')
+            .insert({
+              user_id: userId,
+              full_name: userData?.user?.user_metadata?.full_name || userData?.user?.email || 'مستخدم',
+              is_active: true
+            })
+            .select()
+            .single();
+
+          if (!insertError && newProfile) {
+            setProfile(newProfile as UserProfile);
+            logger.info('Profile created successfully', { userId }, 'Auth');
+          } else {
+            logger.error('Failed to create profile', insertError, 'Auth');
+          }
+        } catch (createError) {
+          logger.error('Error creating profile', createError, 'Auth');
+        }
       }
     } catch (error) {
       logger.error('Unexpected error fetching profile', error, 'Auth');
-      throw error;
+      // Don't throw or logout, just continue
     } finally {
       setLoading(false);
     }

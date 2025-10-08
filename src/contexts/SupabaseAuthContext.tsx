@@ -41,19 +41,28 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
   useEffect(() => {
     // إعداد مستمع تغيير حالة المصادقة
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         logger.info(`Auth state changed: ${event}`, { session: !!session }, 'Auth');
         
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // جلب بيانات البروفايل
+          // جلب بيانات البروفايل وإنشاء الجلسة بشكل غير متزامن
           setTimeout(async () => {
-            await fetchUserProfile(session.user.id);
+            try {
+              await fetchUserProfile(session.user.id);
+            } catch (error) {
+              logger.error('Failed to fetch profile, will continue anyway', error, 'Auth');
+            }
+            
             // إنشاء جلسة تتبع للمستخدم عند تسجيل الدخول
             if (event === 'SIGNED_IN') {
-              await createUserSession(session.user.id);
+              try {
+                await createUserSession(session.user.id);
+              } catch (error) {
+                logger.error('Failed to create session, will continue anyway', error, 'Auth');
+              }
             }
           }, 0);
         } else {
@@ -65,7 +74,7 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
     );
 
     // التحقق من الجلسة الحالية
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
+    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
       if (error) {
         logger.error('Error getting session', error, 'Auth');
       }
@@ -73,12 +82,21 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchUserProfile(session.user.id);
+        try {
+          await fetchUserProfile(session.user.id);
+        } catch (error) {
+          logger.error('Failed to fetch profile on init, will continue anyway', error, 'Auth');
+        }
+        
         // إنشاء جلسة تتبع للمستخدم إذا لم تكن موجودة
-        createUserSession(session.user.id);
-      } else {
-        setLoading(false);
+        try {
+          await createUserSession(session.user.id);
+        } catch (error) {
+          logger.error('Failed to create session on init, will continue anyway', error, 'Auth');
+        }
       }
+      
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -90,17 +108,24 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         logger.error('Error fetching user profile', error, 'Auth');
-        return;
+        throw error;
       }
 
+      if (data) {
         setProfile(data as UserProfile);
         logger.info('User profile fetched successfully', { userId: data.id }, 'Auth');
+      } else {
+        logger.warn('No profile found for user, will be created automatically', { userId }, 'Auth');
+      }
     } catch (error) {
       logger.error('Unexpected error fetching profile', error, 'Auth');
+      throw error;
+    } finally {
+      setLoading(false);
     }
   };
 

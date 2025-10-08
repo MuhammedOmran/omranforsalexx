@@ -171,8 +171,10 @@ export type Database = {
           id: string
           include_tables: string[] | null
           last_backup_date: string | null
+          last_run: string | null
           next_backup_date: string | null
           retention_days: number
+          schedule: string | null
           updated_at: string
           user_id: string
         }
@@ -185,8 +187,10 @@ export type Database = {
           id?: string
           include_tables?: string[] | null
           last_backup_date?: string | null
+          last_run?: string | null
           next_backup_date?: string | null
           retention_days?: number
+          schedule?: string | null
           updated_at?: string
           user_id: string
         }
@@ -199,10 +203,30 @@ export type Database = {
           id?: string
           include_tables?: string[] | null
           last_backup_date?: string | null
+          last_run?: string | null
           next_backup_date?: string | null
           retention_days?: number
+          schedule?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      backup_logs: {
+        Row: {
+          created_at: string | null
+          id: number
+          response: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          response?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          response?: Json | null
         }
         Relationships: []
       }
@@ -275,6 +299,30 @@ export type Database = {
           opening_balance?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      cash_register: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          type: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          type?: string
         }
         Relationships: []
       }
@@ -2722,6 +2770,10 @@ export type Database = {
         Args: { p_granted_by: string; p_license_id: string; p_user_id: string }
         Returns: boolean
       }
+      backup_all_tables_to_storage_compressed: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       calculate_cash_balance: {
         Args: { p_user_id: string }
         Returns: number
@@ -2838,6 +2890,10 @@ export type Database = {
           cleaned_count: number
           message: string
         }[]
+      }
+      create_backup: {
+        Args: { p_user: string }
+        Returns: undefined
       }
       create_company_and_setup: {
         Args: { p_company_data: Json; p_user_id?: string }
@@ -3197,6 +3253,10 @@ export type Database = {
           restored_count: number
           total_amount: number
         }[]
+      }
+      restore_backup: {
+        Args: { p_backup_id: number; p_user: string }
+        Returns: undefined
       }
       restore_deleted_customers: {
         Args: { p_days_back?: number; p_user_id: string }

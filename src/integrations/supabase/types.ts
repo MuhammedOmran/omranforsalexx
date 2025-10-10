@@ -1836,7 +1836,6 @@ export type Database = {
           location: string | null
           phone: string | null
           phone_number: string | null
-          role: string | null
           salary: number | null
           updated_at: string
           user_id: string
@@ -1857,7 +1856,6 @@ export type Database = {
           location?: string | null
           phone?: string | null
           phone_number?: string | null
-          role?: string | null
           salary?: number | null
           updated_at?: string
           user_id: string
@@ -1878,7 +1876,6 @@ export type Database = {
           location?: string | null
           phone?: string | null
           phone_number?: string | null
-          role?: string | null
           salary?: number | null
           updated_at?: string
           user_id?: string
@@ -2402,6 +2399,45 @@ export type Database = {
           tax_number?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      system_lockdown: {
+        Row: {
+          created_at: string
+          estimated_duration_minutes: number
+          id: string
+          is_active: boolean
+          locked_at: string
+          locked_by: string
+          reason: string
+          unlocked_at: string | null
+          unlocked_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          estimated_duration_minutes: number
+          id?: string
+          is_active?: boolean
+          locked_at?: string
+          locked_by: string
+          reason: string
+          unlocked_at?: string | null
+          unlocked_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          estimated_duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          locked_at?: string
+          locked_by?: string
+          reason?: string
+          unlocked_at?: string | null
+          unlocked_by?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -3179,6 +3215,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_system_locked: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
       permanently_delete_all_invoices: {

@@ -8,8 +8,23 @@ interface EncryptionOptions {
   iterations?: number;
 }
 
+/**
+ * @deprecated This hook provides false security with hardcoded encryption keys.
+ * DO NOT USE for sensitive data. Client-side encryption with visible keys in the
+ * JavaScript bundle provides no real protection.
+ * 
+ * For sensitive data:
+ * - Store server-side with proper RLS policies
+ * - Use Supabase's built-in security features
+ * - Never store sensitive data in localStorage
+ */
 export function useSecureStorage() {
   const { user } = useAuth();
+  
+  console.warn(
+    'useSecureStorage is deprecated: Client-side encryption with hardcoded keys is insecure. ' +
+    'Use server-side storage with Supabase RLS instead.'
+  );
 
   // تشفير البيانات بشكل آمن
   const encryptData = useCallback(async (
@@ -173,6 +188,7 @@ export function useSecureStorage() {
   }, [user]);
 
   // إنشاء مفتاح تشفير آمن
+  // WARNING: This uses hardcoded values visible in client code - provides NO real security
   const deriveSecureKey = async (
     userId: string,
     method: 'pbkdf2',
@@ -180,7 +196,8 @@ export function useSecureStorage() {
   ): Promise<CryptoKey> => {
     const encoder = new TextEncoder();
     
-    // استخدام معرف المستخدم + ملح ثابت آمن
+    // SECURITY WARNING: Hardcoded password and salt - visible in JavaScript bundle
+    // This provides ZERO real security. Anyone can decrypt data stored this way.
     const password = `${userId}-omran-security-2024`;
     const passwordBuffer = encoder.encode(password);
     const salt = encoder.encode('omran-sales-secure-salt-v2');

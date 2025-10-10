@@ -40,12 +40,6 @@ export function SecureOperationGuard({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [password, setPassword] = useState('');
   
-  // دالة التحقق من كلمة المرور الآمنة
-  const validateSecurePassword = (pwd: string): boolean => {
-    // استخدام نظام تحقق آمن بدلاً من كلمة مرور مكشوفة
-    // في بيئة الإنتاج، يجب استخدام bcrypt أو نظام مصادقة من Supabase
-    return pwd.length >= 8 && pwd.includes('Admin'); // simplified validation
-  };
   const [isExecuting, setIsExecuting] = useState(false);
 
   // التحقق من الصلاحيات
@@ -82,9 +76,10 @@ export function SecureOperationGuard({
     try {
       setIsExecuting(true);
 
-      // التحقق من كلمة المرور إذا كانت مطلوبة - استخدام نظام آمن
-      if (requiresPassword && !validateSecurePassword(password)) {
-        toast.error('كلمة المرور غير صحيحة');
+      // Note: Password validation removed - implement server-side validation
+      // using Supabase Auth or edge functions for production use
+      if (requiresPassword && !password) {
+        toast.error('كلمة المرور مطلوبة');
         return;
       }
 

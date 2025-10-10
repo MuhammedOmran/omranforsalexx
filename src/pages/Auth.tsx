@@ -137,7 +137,7 @@ const Auth: React.FC = () => {
             id: 'developer-account',
             email: email,
             name: 'المطور - عمران',
-            avatar: '/lovable-uploads/c0a76972-ff67-4e02-90c7-ddc93a3c69d0.png',
+            avatar: '/logo.webp',
             lastLogin: new Date().toISOString()
           };
 
@@ -303,7 +303,7 @@ const Auth: React.FC = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="h-16 w-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
-            <img src="/lovable-uploads/c0a76972-ff67-4e02-90c7-ddc93a3c69d0.png" alt="SPADEX" className="w-8 h-8" />
+            <img src="/logo.webp" alt="SPADEX" className="w-8 h-8" />
           </div>
           <h1 className="text-3xl font-bold text-foreground font-cairo">SPADEX</h1>
           <p className="text-muted-foreground font-tajawal">نظام إدارة شامل للأعمال</p>

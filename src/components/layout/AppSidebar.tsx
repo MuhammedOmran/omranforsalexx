@@ -250,7 +250,7 @@ export function AppSidebar({ isOpen, onClose, onToggle }: AppSidebarProps) {
           {/* Sidebar Header */}
           <div className="p-4 border-b border-border flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src="/lovable-uploads/c0a76972-ff67-4e02-90c7-ddc93a3c69d0.png" alt="SPADEX" className="w-8 h-8" />
+              <img src="/logo.webp" alt="SPADEX" className="w-8 h-8" />
               <h2 className="font-arabic-elegant text-lg text-card-foreground">SPADEX</h2>
             </div>
             <Button

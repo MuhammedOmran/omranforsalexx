@@ -99,7 +99,7 @@ export function useSessionManager() {
     if (!user) return false;
 
     try {
-      const currentSessionToken = localStorage.getItem('supabase.auth.token');
+      const currentSessionToken = localStorage.getItem('session_token');
       
       const { error } = await supabase
         .from('user_sessions')
